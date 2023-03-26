@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  users:
+    container_name: users-microservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3334:3334
+    volumes:
+     - .:/home/node/backend/user-microservice
+     - ./.docker/zsh/powerlevel10k/.p10k.zsh:/home/node/.p10k.zsh:delegated
+     - ./.docker/zsh/history:/home/node/zsh:delegated
+    depends_on:
+      - mongo-dev
+
+  mongo-dev:
+    container_name: mongo-dev
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./.docker/mongo:/home/node/mongo/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+  mongo-test:
+    container_name: mongo-test
+    image: mongo
+    profiles:
+      - test
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    tmpfs:
+      - /data/db
