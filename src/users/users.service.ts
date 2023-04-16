@@ -3,9 +3,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './repositories/mongo/mongo.users.repository';
 import * as bcrypt from 'bcrypt';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    @InjectPinoLogger(UsersService.name)
+    private readonly logger: PinoLogger,
+    private readonly userRepository: UserRepository,
+  ) {}
   async create(createUserDto: CreateUserDto) {
     const newUser = {
       ...createUserDto,
@@ -24,8 +29,15 @@ export class UsersService {
   }
 
   async findOne(email: string) {
-    const user = await this.userRepository.findOne(email);
-    return user;
+    try {
+      const user = await this.userRepository.findOne(email);
+      this.logger.info(`User ${user.email} found`);
+
+      return user;
+    } catch (error) {
+      this.logger.error(`User ${email} not found`);
+      return null;
+    }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
