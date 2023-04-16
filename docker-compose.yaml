@@ -13,6 +13,8 @@ services:
      - ./.docker/zsh/history:/home/node/zsh:delegated
     depends_on:
       - mongo-dev
+    networks:
+      - backend-network
 
   mongo-dev:
     container_name: mongo-dev
@@ -25,6 +27,8 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    networks:
+      - backend-network
   mongo-test:
     container_name: mongo-test
     image: mongo
@@ -36,3 +40,10 @@ services:
       - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
     tmpfs:
       - /data/db
+    networks:
+      - backend-network
+networks:
+  backend-network:
+    name: backend
+    driver: bridge
+    
